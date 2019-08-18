@@ -33,7 +33,7 @@ class SessionController {
     const { id, name } = user;
 
     // Token generation
-    return res.status(200).json({
+    return res.json({
       user: {
         id,
         name,
