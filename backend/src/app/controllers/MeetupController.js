@@ -1,23 +1,22 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore } from 'date-fns';
-import { isBefore, isAfter, startOfHour, parseISO} from 'date-fns';
+import { startOfHour, parseISO, isBefore, isAfter } from 'date-fns';
 import Meetup from '../models/Meetup';
 
-
 class MeetupController {
-  //TODO: list meetups with filter
-  async index(){}
+  // TODO: list meetups with filter
+  async index() {}
 
   // Listing meetups by logged user
-  async listByUser(req, res){
+  async listByUser(req, res) {
     const meetups = await Meetup.findAll({
-      where:{
+      where: {
         user_id: req.userId,
-      }
-    })
+      },
+    });
 
-    res.json(meetups)
+    res.json(meetups);
   }
+
   async store(req, res) {
     // Schema validation to meetup store
     const schema = Yup.object().shape({
@@ -89,15 +88,15 @@ class MeetupController {
     if (!meetupExists) {
       return res.status(400).json({ error: 'Update not allowed' });
     }
-    
+
     const meetup = await Meetup.findByPk(meetupId);
 
-    // TODO: Checking if meetup has already happened
-    if (!(isAfter(meetup.dataValues.date, new Date()))) {
+    // Checking if meetup has already happened
+    if (!isAfter(meetup.getDataValue('date'), new Date())) {
       return res.status(400).json({ error: 'Meetup has already happened' });
     }
 
-    if(!!newDate){
+    if (newDate) {
       // Cheking if meetup date has passed
       const dateToStart = startOfHour(parseISO(newDate));
 
@@ -110,20 +109,27 @@ class MeetupController {
     const updatedMeetup = await meetup.update(req.body);
 
     return res.json(updatedMeetup);
-
   }
 
   async delete(req, res) {
-    // Cheking if meetup already exists
+    // Cheking if meetup already exists and user is organizer
     const meetupExists = await Meetup.findOne({
-      where: { id: req.params.id },
+      where: {
+        id: req.params.id,
+        user_id: req.userId,
+      },
     });
 
     if (!meetupExists) {
-      return res.status(400).json({ error: 'Meetup not found.' });
+      return res.status(400).json({ error: 'Remotion not allowed' });
     }
 
+    // Cheking if meetup has already happened
     const meetup = await Meetup.findByPk(req.params.id);
+
+    if (!isAfter(meetup.getDataValue('date'), new Date())) {
+      return res.status(400).json({ error: 'Meetup has already happened' });
+    }
     // Destroying meetup
     await meetup.destroy();
 
