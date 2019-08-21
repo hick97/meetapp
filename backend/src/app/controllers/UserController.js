@@ -25,7 +25,7 @@ class UserController {
     }
     const { id, name, email } = await User.create(req.body);
 
-    return res.status(200).json({
+    return res.json({
       id,
       name,
       email,
@@ -72,7 +72,7 @@ class UserController {
 
     const { id, name } = await user.update(req.body);
 
-    return res.status(200).json({
+    return res.json({
       id,
       name,
       email,
