@@ -53,14 +53,14 @@ class InscriptionController {
     });
 
     if (isOrganizer) {
-      return res.status(401).json({
+      return res.status(400).json({
         error: 'Inscription is not allowed, user is meetup organizer',
       });
     }
 
     // Checking if meetup has already happened
-    if (isBefore(meetup.getDataValue('date'), new Date())) {
-      return res.status(401).json({ error: 'Meetup has already happened' });
+    if (isBefore(meetup.date, new Date())) {
+      return res.status(400).json({ error: 'Meetup has already happened' });
     }
 
     // Checking if user inscription exists in meetup
@@ -72,7 +72,7 @@ class InscriptionController {
     });
 
     if (inscriptionExists) {
-      return res.status(401).json({
+      return res.status(400).json({
         error: 'Inscription is not allowed, user is already a participant',
       });
     }
@@ -87,14 +87,14 @@ class InscriptionController {
           model: Meetup,
           required: true,
           where: {
-            date: meetup.getDataValue('date'),
+            date: meetup.date,
           },
         },
       ],
     });
 
     if (userIsBusy) {
-      return res.status(401).json({
+      return res.status(400).json({
         error:
           'Inscription is not allowed, user is already has two meetups at the same hour',
       });

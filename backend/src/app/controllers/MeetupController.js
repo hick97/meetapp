@@ -1,10 +1,41 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore, isAfter } from 'date-fns';
+import { Op } from 'sequelize';
+import { parseISO, isBefore, isAfter, startOfDay, endOfDay } from 'date-fns';
+
 import Meetup from '../models/Meetup';
+import File from '../models/File';
+import User from '../models/User';
 
 class MeetupController {
-  // TODO: list meetups with filter
-  async index() {}
+  // Listing meetups with filter
+  async index(req, res) {
+    const { date, page = 1 } = req.query;
+
+    const where = {};
+
+    // If date filter exists
+    if (date) {
+      const marked_date = parseISO(date);
+
+      where.date = {
+        [Op.between]: [startOfDay(marked_date), endOfDay(marked_date)],
+      };
+    }
+
+    const meetups = await Meetup.findAll({
+      where,
+      include: [
+        {
+          model: User,
+          attributes: ['name', 'email'],
+        },
+      ],
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+
+    res.json(meetups);
+  }
 
   // Listing meetups by logged user
   async listByUser(req, res) {
@@ -12,6 +43,13 @@ class MeetupController {
       where: {
         user_id: req.userId,
       },
+      include: [
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['url', 'id', 'name'],
+        },
+      ],
     });
 
     res.json(meetups);
@@ -33,9 +71,9 @@ class MeetupController {
 
     // Cheking if meetup date has passed
     const { title, description, location, banner_id, date } = req.body;
-    const hourStart = startOfHour(parseISO(date));
+    const dateToStart = parseISO(date);
 
-    if (isBefore(hourStart, new Date())) {
+    if (isBefore(dateToStart, new Date())) {
       return res.status(400).json({ error: 'Past dates are not permited' });
     }
 
@@ -86,19 +124,19 @@ class MeetupController {
     });
 
     if (!meetupExists) {
-      return res.status(400).json({ error: 'Update not allowed' });
+      return res.status(401).json({ error: 'Update not allowed' });
     }
 
     const meetup = await Meetup.findByPk(meetupId);
 
     // Checking if meetup has already happened
-    if (!isAfter(meetup.getDataValue('date'), new Date())) {
+    if (!isAfter(meetup.date, new Date())) {
       return res.status(400).json({ error: 'Meetup has already happened' });
     }
 
     if (newDate) {
       // Cheking if meetup date has passed
-      const dateToStart = startOfHour(parseISO(newDate));
+      const dateToStart = parseISO(newDate);
 
       if (isBefore(dateToStart, new Date())) {
         return res.status(400).json({ error: 'Past dates are not permited' });
@@ -121,13 +159,13 @@ class MeetupController {
     });
 
     if (!meetupExists) {
-      return res.status(400).json({ error: 'Remotion not allowed' });
+      return res.status(401).json({ error: 'Remotion not allowed' });
     }
 
     // Cheking if meetup has already happened
     const meetup = await Meetup.findByPk(req.params.id);
 
-    if (!isAfter(meetup.getDataValue('date'), new Date())) {
+    if (!isAfter(meetup.date, new Date())) {
       return res.status(400).json({ error: 'Meetup has already happened' });
     }
     // Destroying meetup

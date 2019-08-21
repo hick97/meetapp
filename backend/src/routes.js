@@ -28,6 +28,8 @@ routes.post('/files', upload.single('file'), FileController.store);
 
 /* Meetups */
 
+routes.get('/meetups', MeetupController.index);
+
 routes.get('/user/meetups', MeetupController.listByUser);
 
 routes.post('/meetups', MeetupController.store);
