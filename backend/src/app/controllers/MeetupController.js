@@ -27,7 +27,13 @@ class MeetupController {
       include: [
         {
           model: User,
-          attributes: ['name', 'email'],
+          as: 'organizer',
+          attributes: ['id', 'name', 'email'],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['url', 'id', 'path'],
         },
       ],
       limit: 10,
@@ -144,9 +150,40 @@ class MeetupController {
     }
 
     // Updating meetup
-    const updatedMeetup = await meetup.update(req.body);
+    await meetup.update(req.body);
 
-    return res.json(updatedMeetup);
+    const {
+      id,
+      title,
+      description,
+      location,
+      date,
+      banner,
+      organizer,
+    } = await Meetup.findByPk(meetupId, {
+      include: [
+        {
+          model: User,
+          as: 'organizer',
+          attributes: ['id', 'name', 'email'],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['url', 'id', 'path'],
+        },
+      ],
+    });
+
+    return res.json({
+      id,
+      title,
+      description,
+      location,
+      date,
+      banner,
+      organizer,
+    });
   }
 
   async delete(req, res) {

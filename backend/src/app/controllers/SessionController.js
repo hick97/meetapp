@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import authConfig from '../../config/auth';
 
 import User from '../models/User';
+import Meetup from '../models/Meetup';
 
 class SessionController {
   async store(req, res) {
@@ -20,7 +21,9 @@ class SessionController {
     }
     const { email, password } = req.body;
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({
+      where: { email },
+    });
 
     if (!user) {
       res.status(401).json({ error: 'User not found.' });
@@ -30,6 +33,16 @@ class SessionController {
       res.status(401).json({ error: 'Invalid password.' });
     }
 
+    // Cheking if user is organizer
+    const isOrganizer = await Meetup.findOne({
+      where: {
+        user_id: user.id,
+      },
+    });
+
+    let organizer = true;
+    if (!isOrganizer) organizer = false;
+
     const { id, name } = user;
 
     // Token generation
@@ -38,6 +51,7 @@ class SessionController {
         id,
         name,
         email,
+        organizer,
       },
       token: jwt.sign({ id }, authConfig.secret, {
         expiresIn: authConfig.expiresIn,
