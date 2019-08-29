@@ -42,6 +42,23 @@ class MeetupController {
 
     res.json(meetups);
   }
+  // Listin meetup details by id
+
+  async listById(req, res) {
+    const { id: meetupId } = req.params;
+
+    const meetup = await Meetup.findByPk(meetupId, {
+      include: [
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['url', 'id', 'path'],
+        },
+      ],
+    });
+
+    res.json(meetup);
+  }
 
   // Listing meetups by logged user
   async listByUser(req, res) {
@@ -53,7 +70,7 @@ class MeetupController {
         {
           model: File,
           as: 'banner',
-          attributes: ['url', 'id', 'name'],
+          attributes: ['url', 'id', 'path'],
         },
       ],
     });
