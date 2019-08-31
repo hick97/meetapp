@@ -17,18 +17,20 @@ export default createGlobalStyle`
   }
 
   html, body, #root{
-    height: 100%;
+    height: 100vh;
+    background: linear-gradient(to bottom, #402845 0%, #22202c 100%), transparent;
+
   }
 
   body{
+    
     text-rendering: optimizeLegibility !important;
     -webkit-font-smothing: antialiased !important;
-    background: #181818;
     font-family: 'Montserrat', sans-serif;
     color: #fff;
   }
 
-  body, input, button{
+  body, input, button, textarea{
     font: 16px 'Roboto', sans-serif;
   }
 

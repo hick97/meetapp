@@ -1,20 +1,9 @@
 import styled from 'styled-components';
 import { darken } from 'polished';
 
-export const Wrapper = styled.div`
-  height: 100%;
-  background: linear-gradient(to bottom, #22202c 0%, #402845 100%), transparent;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-export const Content = styled.div`
-  width: 100%;
-  max-width: 315px;
-  text-align: center;
-
+export const Container = styled.div`
+  max-width: 940px;
+  margin: 50px auto;
   form {
     display: flex;
     flex-direction: column;
@@ -40,19 +29,32 @@ export const Content = styled.div`
       font-weight: bold;
     }
 
-    button {
-      margin: 5px 0 0;
-      height: 44px;
-      background: #f94d6a;
-      font-weight: bold;
-      color: #fff;
+    hr {
       border: 0;
-      border-radius: 4px;
-      font-size: 16px;
-      transition: background 0.2s;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 10px 0 20px;
+    }
 
-      &:hover {
-        background: ${darken(0.03, '#f94d6a')};
+    div {
+      text-align: right;
+
+      button {
+        align-items: right;
+        margin: 5px 0 0;
+        width: 162px;
+        height: 42px;
+        background: #f94d6a;
+        font-weight: bold;
+        color: #fff;
+        border: 0;
+        border-radius: 4px;
+        font-size: 16px;
+        transition: background 0.2s;
+
+        &:hover {
+          background: ${darken(0.08, '#f94d6a')};
+        }
       }
     }
 

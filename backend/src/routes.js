@@ -32,6 +32,8 @@ routes.get('/meetups', MeetupController.index);
 
 routes.get('/user/meetups', MeetupController.listByUser);
 
+routes.get('/meetups/:id', MeetupController.listById);
+
 routes.post('/meetups', MeetupController.store);
 
 routes.put('/meetups/:id', MeetupController.update);
