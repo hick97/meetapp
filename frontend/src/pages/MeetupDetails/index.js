@@ -1,18 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
 import { format, parseISO } from 'date-fns';
 import pt from 'date-fns/locale/pt';
-import { Link } from 'react-router-dom';
 import api from '../../services/api';
+
+import { cancelMeetupRequest } from '../../store/modules/meetup/actions';
 
 import { Container, ContentHeader, Content, ContentFooter } from './styles';
 
 export default function MeetupDetails(props) {
+  const dispatch = useDispatch();
+
   const [meetup, setMeetup] = useState([]);
-  const prevProps = useRef(props);
 
   useEffect(() => {
     async function loadMeetupDetails() {
-      const { id: meetupId } = prevProps.current.match.params;
+      const { id: meetupId } = props.match.params;
 
       const response = await api.get(`/meetups/${meetupId}`);
 
@@ -30,8 +36,12 @@ export default function MeetupDetails(props) {
     }
 
     loadMeetupDetails();
-  }, [meetup.date, prevProps]);
-  function handleCancel() {}
+  }, [meetup.date, props]);
+
+  async function handleCancel() {
+    const { id: meetupId } = props.match.params;
+    dispatch(cancelMeetupRequest(meetupId));
+  }
   return (
     <Container>
       <ContentHeader>
@@ -58,3 +68,11 @@ export default function MeetupDetails(props) {
     </Container>
   );
 }
+
+MeetupDetails.propTypes = {
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      id: PropTypes.string,
+    }),
+  }).isRequired,
+};

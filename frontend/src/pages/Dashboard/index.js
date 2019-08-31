@@ -1,31 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { format, parseISO } from 'date-fns';
 import pt from 'date-fns/locale/pt';
-import { Link } from 'react-router-dom';
-import api from '../../services/api';
+
+import { getMeetupsRequest } from '../../store/modules/meetup/actions';
 
 import { Container, ContentHeader, Meetup } from './styles';
 
 export default function Dashboard() {
-  const [meetups, setMeetups] = useState([]);
+  const dispatch = useDispatch();
+
+  const meetups = useSelector(state => {
+    const response = state.meetup.meetups;
+
+    const formattedResponse = response.map(meetup => {
+      return {
+        id: meetup.id,
+        title: meetup.title,
+        date: format(parseISO(meetup.date), "d 'de' MMMM ', às ' HH'h'", {
+          locale: pt,
+        }),
+      };
+    });
+
+    return formattedResponse;
+  });
+
   useEffect(() => {
-    async function loadMeetups() {
-      const response = await api.get('/user/meetups');
-
-      const formattedResponse = response.data.map(meetup => {
-        return {
-          id: meetup.id,
-          title: meetup.title,
-          date: format(parseISO(meetup.date), "d 'de' MMMM ', às ' HH'h'", {
-            locale: pt,
-          }),
-        };
-      });
-
-      setMeetups(formattedResponse);
-    }
-    loadMeetups();
-  }, []);
+    dispatch(getMeetupsRequest());
+  }, [dispatch]);
   return (
     <Container>
       <ContentHeader>
@@ -37,7 +42,7 @@ export default function Dashboard() {
 
       <ul>
         {meetups.map(meetup => (
-          <Link to={`/meetup/${meetup.id}/details`}>
+          <Link key={meetup.id} to={`/meetup/${meetup.id}/details`}>
             <Meetup>
               <strong>{meetup.title}</strong>
               <span>{meetup.date}</span>

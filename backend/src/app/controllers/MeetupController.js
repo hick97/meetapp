@@ -225,7 +225,7 @@ class MeetupController {
     // Destroying meetup
     await meetup.destroy();
 
-    return res.status(200);
+    return res.send('OK');
   }
 }
 
