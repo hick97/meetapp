@@ -25,6 +25,12 @@ class InscriptionController {
               [Op.gt]: new Date(),
             },
           },
+          include: [
+            {
+              model: User,
+              as: 'organizer',
+            },
+          ],
         },
       ],
       // ordering by meetup date
@@ -41,7 +47,13 @@ class InscriptionController {
 
     // Getting meetup data by user interest
     const meetup = await Meetup.findByPk(meetup_id, {
-      include: [User],
+      include: [
+        {
+          model: User,
+          as: 'organizer',
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
     });
 
     // Cheking if user is meetup organizer
@@ -109,12 +121,22 @@ class InscriptionController {
     const participant = await User.findByPk(participant_id);
 
     // Queuing email
+
     await Queue.add(InscriptionMail.key, {
       meetup,
       participant,
     });
 
     return res.json(inscription);
+  }
+
+  async cancel(req, res) {
+    const inscription = await Inscription.findByPk(req.params.id);
+
+    // Destroying inscription
+    await inscription.destroy();
+
+    return res.send('OK');
   }
 }
 
