@@ -1,4 +1,4 @@
-# meetapp
+# Meetapp
 Final challenge - Bootcamp Rocketseat
 
 # Iniciando aplicação - Parte 01

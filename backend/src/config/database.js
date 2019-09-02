@@ -1,11 +1,11 @@
+require('dotenv').config();
+
 module.exports = {
   dialect: 'postgres',
-  // host: 'localhost', // run local db
-  host: '192.168.99.100', // docker vitualization (Virtual Machine in Windows)
-  username: 'postgres',
-  // password: 'rico1997', run local
-  password: 'docker', // docker vitualization (Virtual Machine in Windows)
-  database: 'meetapp', // database
+  host: process.env.DB_HOST,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
   operatorAliases: false,
   define: {
     timestamps: true,
